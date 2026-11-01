@@ -17,45 +17,51 @@ button{padding:10px 20px; margin:5px; border:none; border-radius:8px; background
 <body>
 <h1>🌿 Sortie Écologique - TCS-4 G2</h1>
 <div class="controls">
-<button onclick="changePage(-1)">⬅️ السابق</button>
+<button onclick="changePage(-1)"> précédent</button>
 <span id="page-num">1 / 10</span>
-<button onclick="changePage(1)">التالي ➡️</button>
+<button onclick="changePage(1)">suivant </button>
 </div>
 <div id="pdf-viewer"></div>
 
 <script>
-const url = 'presentation.pdf';
+const url = './presentation.pdf';
 let pdfDoc = null, pageNum = 1, totalPages = 0;
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
 pdfjsLib.getDocument(url).promise.then(doc => {
-pdfDoc = doc;
-totalPages = doc.numPages;
-document.getElementById('page-num').textContent = 1 / ${totalPages}`;
-renderPage(1);
+    pdfDoc = doc;
+    totalPages = doc.numPages;
+    document.getElementById('page-num').textContent = `${pageNum} / ${totalPages}`;
+    renderPage(1);
+}).catch(err => {
+    console.error('Error loading PDF:', err);
+    document.getElementById('pdf-viewer').innerHTML = '<p style="color: red;">تعسّر تحميل ملف الـ PDF. تأكد أن مسار الملف صحيح.</p>';
 });
 
 function renderPage(num) {
-pdfDoc.getPage(num).then(page => {
-const viewport = page.getViewport({scale: 1.5});
-const canvas = document.createElement('canvas');
-const ctx = canvas.getContext('2d');
-canvas.height = viewport.height;
-canvas.width = viewport.width;
-document.getElementById('pdf-viewer').innerHTML = '';
-document.getElementById('pdf-viewer').appendChild(canvas);
-page.render({canvasContext: ctx, viewport: viewport});
-document.getElementById('page-num').textContent = ``${num} / ${totalPages}`;
-});
+    pdfDoc.getPage(num).then(page => {
+        const viewport = page.getViewport({scale: 1.5});
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        
+        const viewer = document.getElementById('pdf-viewer');
+        viewer.innerHTML = '';
+        viewer.appendChild(canvas);
+        
+        page.render({canvasContext: ctx, viewport: viewport});
+        document.getElementById('page-num').textContent = `${num} / ${totalPages}`;
+    });
 }
 
-function changePage(delta){
-let newPage = pageNum + delta;
-if(newPage < 1 || newPage > totalPages) return;
-pageNum = newPage;
-renderPage(pageNum);
-window.scrollTo(0,0);
+function changePage(delta) {
+    let newPage = pageNum + delta;
+    if(newPage < 1 || newPage > totalPages) return;
+    pageNum = newPage;
+    renderPage(pageNum);
+    window.scrollTo(0, 0);
 }
 </script>
 </body>
