@@ -1,14 +1,62 @@
-<html lang="en">
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sortie écologique - Elites</title>
-    <style>
-        body{margin: 0; background:#1a2a1a; display: flex; flex-direction: column; align-items: center; color: white; font-family: sans-serif;}
-        iframe{width: 90%; height: 90vh; border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0, 0, 0.5);}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ecologie - Elite Nexogen</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+body{margin:0; background:#0f1e0f; color:white; font-family:sans-serif; text-align:center}
+h1{padding:15px; margin:0; background:#1a3a1a}
+#pdf-viewer{margin:20px auto; width:95%; max-width:900px}
+canvas{width:100%; margin-bottom:15px; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.5); background:white}
+.controls{position:sticky; top:0; background:#0f1e0f; padding:10px; z-index:10}
+button{padding:10px 20px; margin:5px; border:none; border-radius:8px; background:#2d6a2d; color:white; font-weight:bold; cursor:pointer}
+</style>
 </head>
 <body>
-    <iframe src="./presentation.pdf"></iframe>
+<h1>🌿 Sortie Écologique - TCS-4 G2</h1>
+<div class="controls">
+<button onclick="changePage(-1)">⬅️ السابق</button>
+<span id="page-num">1 / 10</span>
+<button onclick="changePage(1)">التالي ➡️</button>
+</div>
+<div id="pdf-viewer"></div>
+
+<script>
+const url = 'presentation.pdf';
+let pdfDoc = null, pageNum = 1, totalPages = 0;
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+pdfjsLib.getDocument(url).promise.then(doc => {
+pdfDoc = doc;
+totalPages = doc.numPages;
+document.getElementById('page-num').textContent = 1 / ${totalPages}`;
+renderPage(1);
+});
+
+function renderPage(num) {
+pdfDoc.getPage(num).then(page => {
+const viewport = page.getViewport({scale: 1.5});
+const canvas = document.createElement('canvas');
+const ctx = canvas.getContext('2d');
+canvas.height = viewport.height;
+canvas.width = viewport.width;
+document.getElementById('pdf-viewer').innerHTML = '';
+document.getElementById('pdf-viewer').appendChild(canvas);
+page.render({canvasContext: ctx, viewport: viewport});
+document.getElementById('page-num').textContent = ``${num} / ${totalPages}`;
+});
+}
+
+function changePage(delta){
+let newPage = pageNum + delta;
+if(newPage < 1 || newPage > totalPages) return;
+pageNum = newPage;
+renderPage(pageNum);
+window.scrollTo(0,0);
+}
+</script>
 </body>
 </html>
